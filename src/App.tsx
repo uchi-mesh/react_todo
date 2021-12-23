@@ -1,15 +1,16 @@
 import React from 'react';
 import './App.css';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Text, Stack } from '@chakra-ui/react';
 import Header from '_components/Header';
+import Home from 'pages/Home/Home';
 
 function App() {
   return (
     <Box>
       <Header />
-      <Box>
-        <Text>hello world</Text>
-      </Box>
+      <Stack spacing={6} py={6} m="auto" maxW="container.lg">
+        <Home />
+      </Stack>
     </Box>
   );
 }
