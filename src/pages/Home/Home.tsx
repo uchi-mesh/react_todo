@@ -66,6 +66,7 @@ const Home = () => {
     setTodos(newTodos);
   };
 
+  //* タスク完了チェック
   const checkTodo = (id: number, checked: boolean) => {
     const deepCopy: Todo[] = JSON.parse(JSON.stringify(todos));
 
@@ -79,6 +80,7 @@ const Home = () => {
     setTodos(newTodos);
   };
 
+  //* タスク削除
   const removeTodo = (id: number, removed: boolean) => {
     const deepCopy: Todo[] = JSON.parse(JSON.stringify(todos));
 
@@ -91,6 +93,7 @@ const Home = () => {
     setTodos(newTodos);
   };
 
+  //* タスクフィルタリング
   const filteredTodos: Todo[] = todos.filter((todo) => {
     switch (filter) {
       case 'all':
@@ -106,6 +109,12 @@ const Home = () => {
     }
   });
 
+  //* ゴミ箱を空にする
+  const emptyGarbage = () => {
+    const newTodos = todos.filter((todo) => !todo.removed);
+    setTodos(newTodos);
+  };
+
   return (
     <>
       <Box>
@@ -115,15 +124,19 @@ const Home = () => {
         <HStack my={4}>
           <Input
             placeholder="新規タスク"
+            disabled={filter === 'removed'}
             value={text}
             onChange={(e) => inputOnChange(e)}
           />
-          <Button colorScheme="blue" onClick={addTodo}>
+          <Button
+            colorScheme="blue"
+            disabled={filter === 'removed'}
+            onClick={addTodo}>
             追加
           </Button>
         </HStack>
         <Stack>
-          <HStack>
+          <HStack justify="space-between">
             <Box>
               <Select
                 defaultValue="all"
@@ -133,6 +146,14 @@ const Home = () => {
                 <option value="unchecked">現在のタスク</option>
                 <option value="removed">ごみ箱</option>
               </Select>
+            </Box>
+            <Box display={filter === 'removed' ? 'block' : 'none'}>
+              <Button
+                colorScheme="gray"
+                onClick={emptyGarbage}
+                disabled={todos.filter((todo) => todo.removed).length === 0}>
+                ゴミ箱を空にする
+              </Button>
             </Box>
           </HStack>
           <Box>
