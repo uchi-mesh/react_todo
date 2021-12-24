@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  HStack,
-  Button,
-  Input,
-  UnorderedList,
-  ListItem,
-} from '@chakra-ui/react';
+import { Box, HStack, Button, Input, Checkbox } from '@chakra-ui/react';
 import Title from '_components/Title';
 
 interface Todo {
   value: string;
   readonly id: number;
+  checked: boolean;
+  removed: boolean;
 }
 
 const Home = () => {
@@ -32,6 +27,8 @@ const Home = () => {
     const newTodo: Todo = {
       value: text,
       id: new Date().getTime(),
+      checked: false,
+      removed: false,
     };
 
     //* stateに追加
@@ -40,6 +37,7 @@ const Home = () => {
     setText('');
   };
 
+  //* 追加されたタスクの編集イベント
   const editTodo = (id: number, value: string) => {
     const deepCopy: Todo[] = JSON.parse(JSON.stringify(todos));
 
@@ -50,6 +48,35 @@ const Home = () => {
       return todo;
     });
 
+    //* todos ステート配列をチェック（あとでコメントアウト）
+    // console.log('=== Original todos ===');
+    // todos.map((todo) => console.log(`id: ${todo.id}, value: ${todo.value}`));
+
+    setTodos(newTodos);
+  };
+
+  const checkTodo = (id: number, checked: boolean) => {
+    const deepCopy: Todo[] = JSON.parse(JSON.stringify(todos));
+
+    const newTodos = deepCopy.map((todo) => {
+      if (todo.id === id) {
+        todo.checked = !checked;
+      }
+      return todo;
+    });
+
+    setTodos(newTodos);
+  };
+
+  const removeTodo = (id: number, removed: boolean) => {
+    const deepCopy: Todo[] = JSON.parse(JSON.stringify(todos));
+
+    const newTodos = deepCopy.map((todo) => {
+      if (todo.id === id) {
+        todo.removed = !removed;
+      }
+      return todo;
+    });
     setTodos(newTodos);
   };
 
@@ -69,18 +96,32 @@ const Home = () => {
             追加
           </Button>
         </HStack>
-        <UnorderedList>
+        <Box>
           {todos.map((todo) => {
             return (
-              <ListItem key={todo.id}>
-                <Input
-                  value={todo.value}
-                  onChange={(e) => editTodo(todo.id, e.target.value)}
-                />
-              </ListItem>
+              <Box key={todo.id} my={2}>
+                <HStack>
+                  <Checkbox
+                    isChecked={todo.checked}
+                    disabled={todo.removed}
+                    onChange={() =>
+                      checkTodo(todo.id, todo.checked)
+                    }></Checkbox>
+                  <Input
+                    value={todo.value}
+                    disabled={todo.checked || todo.removed}
+                    onChange={(e) => editTodo(todo.id, e.target.value)}
+                  />
+                  <Button
+                    colorScheme={todo.removed ? 'green' : 'red'}
+                    onClick={() => removeTodo(todo.id, todo.removed)}>
+                    {todo.removed ? '復元' : '削除'}
+                  </Button>
+                </HStack>
+              </Box>
             );
           })}
-        </UnorderedList>
+        </Box>
       </Box>
     </>
   );
