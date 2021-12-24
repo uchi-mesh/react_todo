@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Box, HStack, Button, Input, Checkbox } from '@chakra-ui/react';
+import {
+  Box,
+  HStack,
+  Stack,
+  Button,
+  Input,
+  Checkbox,
+  Select,
+} from '@chakra-ui/react';
 import Title from '_components/Title';
 
 interface Todo {
@@ -9,10 +17,13 @@ interface Todo {
   removed: boolean;
 }
 
+type Filter = 'all' | 'checked' | 'unchecked' | 'removed';
+
 const Home = () => {
   //* stateの初期生成
   const [text, setText] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [filter, setFilter] = useState<Filter>('all');
 
   //* フォーム入力時イベント
   const inputOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,6 +91,21 @@ const Home = () => {
     setTodos(newTodos);
   };
 
+  const filteredTodos: Todo[] = todos.filter((todo) => {
+    switch (filter) {
+      case 'all':
+        return !todo.removed;
+      case 'checked':
+        return todo.checked && !todo.removed;
+      case 'unchecked':
+        return !todo.checked && !todo.removed;
+      case 'removed':
+        return todo.removed;
+      default:
+        return todo;
+    }
+  });
+
   return (
     <>
       <Box>
@@ -96,32 +122,46 @@ const Home = () => {
             追加
           </Button>
         </HStack>
-        <Box>
-          {todos.map((todo) => {
-            return (
-              <Box key={todo.id} my={2}>
-                <HStack>
-                  <Checkbox
-                    isChecked={todo.checked}
-                    disabled={todo.removed}
-                    onChange={() =>
-                      checkTodo(todo.id, todo.checked)
-                    }></Checkbox>
-                  <Input
-                    value={todo.value}
-                    disabled={todo.checked || todo.removed}
-                    onChange={(e) => editTodo(todo.id, e.target.value)}
-                  />
-                  <Button
-                    colorScheme={todo.removed ? 'green' : 'red'}
-                    onClick={() => removeTodo(todo.id, todo.removed)}>
-                    {todo.removed ? '復元' : '削除'}
-                  </Button>
-                </HStack>
-              </Box>
-            );
-          })}
-        </Box>
+        <Stack>
+          <HStack>
+            <Box>
+              <Select
+                defaultValue="all"
+                onChange={(e) => setFilter(e.target.value as Filter)}>
+                <option value="all">すべてのタスク</option>
+                <option value="checked">完了したタスク</option>
+                <option value="unchecked">現在のタスク</option>
+                <option value="removed">ごみ箱</option>
+              </Select>
+            </Box>
+          </HStack>
+          <Box>
+            {filteredTodos.map((todo) => {
+              return (
+                <Box key={todo.id} my={2}>
+                  <HStack>
+                    <Checkbox
+                      isChecked={todo.checked}
+                      disabled={todo.removed}
+                      onChange={() =>
+                        checkTodo(todo.id, todo.checked)
+                      }></Checkbox>
+                    <Input
+                      value={todo.value}
+                      disabled={todo.checked || todo.removed}
+                      onChange={(e) => editTodo(todo.id, e.target.value)}
+                    />
+                    <Button
+                      colorScheme={todo.removed ? 'green' : 'red'}
+                      onClick={() => removeTodo(todo.id, todo.removed)}>
+                      {todo.removed ? '復元' : '削除'}
+                    </Button>
+                  </HStack>
+                </Box>
+              );
+            })}
+          </Box>
+        </Stack>
       </Box>
     </>
   );
